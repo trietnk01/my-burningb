@@ -41,7 +41,6 @@ interface IProduct {
 const ProductList = () => {
 	const navigate = useNavigate();
 	const theme = useTheme();
-	const { t } = useTranslation();
 	const dispatch = useDispatch();
 	let mounted: boolean = true;
 	const [search, setSearch] = React.useState<string>("");
@@ -49,12 +48,12 @@ const ProductList = () => {
 	const [isLoading, setLoading] = React.useState<boolean>(true);
 	const [selected, setSelected] = React.useState<number[]>([]);
 	const isSelected = (id: number) => selected.indexOf(id) !== -1;
-	const tbProductRef = React.useRef<HTMLDivElement | null>(null);
+	const screenView = React.useRef<HTMLDivElement | null>(null);
 	const [limit, setLimit] = React.useState<number>(20);
 	const [totalItem, setTotalItem] = React.useState<number>(0);
 	const [isShowProgress, setIsShowProgress] = React.useState<boolean>(false);
-	const tbProductHeight = 900;
-	const scrollTop = 560;
+	const tbProductHeight: number = 900;
+	const rowHeight: number = 73;
 	const getList = async (limit: number, keyword: string) => {
 		try {
 			let url = "";
@@ -99,31 +98,33 @@ const ProductList = () => {
 		if (limit > 20) {
 			setTimeout(() => {
 				setIsShowProgress(false);
-				if (tbProductRef.current) {
-					tbProductRef.current.scrollTo({
-						top: 100,
+				if (screenView.current) {
+					screenView.current.scrollTo({
+						top: 200,
 						left: 0,
 						behavior: "smooth"
 					});
 				}
-			}, 1000);
+			}, 3000);
 		}
 		return () => {
 			mounted = false;
 		};
 	}, [limit]);
 	React.useEffect(() => {
-		let y = 0;
-		if (tbProductRef.current) {
-			tbProductRef.current.scrollTo({
+		let scrollTop: number = 0;
+		if (screenView.current) {
+			const screenHeight = screenView.current.clientHeight;
+			const windowHeight = rowHeight * limit;
+			screenView.current.scrollTo({
 				top: 0,
 				left: 0,
 				behavior: "smooth"
 			});
-			tbProductRef.current.onscroll = () => {
-				y = tbProductRef.current ? parseInt(tbProductRef.current.scrollTop.toString()) : 0;
-				console.log("y = ", y);
-				if (y === scrollTop && limit < totalItem) {
+			screenView.current.onscroll = () => {
+				scrollTop = screenView.current ? parseInt(screenView.current.scrollTop.toString()) : 0;
+				console.log("limit = ", limit);
+				if (scrollTop + screenHeight === windowHeight && limit < totalItem) {
 					setLimit((prevLimit) => prevLimit + 20);
 					setIsShowProgress(true);
 				}
@@ -132,15 +133,15 @@ const ProductList = () => {
 		return () => {
 			mounted = false;
 		};
-	}, [totalItem]);
+	}, [totalItem, limit]);
 	const handleSearch = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement> | undefined) => {
 		let strSearch = event && event.target && event.target.value ? event.target.value.toString() : "";
 		setSearch(strSearch);
 		setLimit(20);
 		setLoading(true);
 		debouncedSearch(20, strSearch);
-		if (tbProductRef.current) {
-			tbProductRef.current.scrollTo({
+		if (screenView.current) {
+			screenView.current.scrollTo({
 				top: 0,
 				left: 0,
 				behavior: "smooth"
@@ -182,77 +183,79 @@ const ProductList = () => {
 		);
 	};
 	return (
-		<Card variant="outlined">
-			<Box
-				display="flex"
-				alignItems="center"
-				color={theme.palette.grey[800]}
-				fontWeight={500}
-				fontSize={20}
-				height={60}
-				borderBottom={1}
-				pl={2}
-				pr={2}
-				borderColor={theme.palette.grey[300]}
-			>
-				{"Product list"}
-			</Box>
-			<Box p={2} display="flex" justifyContent="space-between" alignItems="center" height={60}>
-				<Box>
-					<MyTextField
-						fullWidth
-						InputProps={{
-							startAdornment: (
-								<InputAdornment position="start">
-									<SearchIcon fontSize="small" />
-								</InputAdornment>
-							)
-						}}
-						placeholder={"Product name"}
-						onChange={handleSearch}
-						value={search}
-						size="small"
-					/>
+		<Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%" }}>
+			<Box sx={{ width: "900px" }}>
+				<Box
+					display="flex"
+					alignItems="center"
+					color={theme.palette.grey[800]}
+					fontWeight={500}
+					fontSize={20}
+					height={60}
+					borderBottom={1}
+					pl={2}
+					pr={2}
+					borderColor={theme.palette.grey[300]}
+				>
+					Product list
 				</Box>
-			</Box>
-			<Box sx={{ position: "relative" }}>
-				<Box>
-					<Table>
-						<TableHead>
-							<TableRow>
-								<TableCell width={800}>{t("Name")}</TableCell>
-								<TableCell width={500}>{t("Price")}</TableCell>
-								<TableCell>{t("Image")}</TableCell>
-							</TableRow>
-						</TableHead>
-					</Table>
-				</Box>
-				<Box sx={{ height: `${tbProductHeight}px`, overflowX: "hidden" }} ref={tbProductRef}>
-					<TableContainer>
-						<Table>
-							<TableBody>
-								<DataTableLoading isLoading={isLoading} data={dataTableLoaded()} numColumn={3} />
-							</TableBody>
-						</Table>
-					</TableContainer>
-				</Box>
-				{isShowProgress && (
-					<Box
-						sx={{
-							position: "absolute",
-							bottom: 0,
-							left: 0,
-							width: "100%",
-							height: 40,
-							display: "flex",
-							justifyContent: "center"
-						}}
-					>
-						<CircularProgress />
+				<Box p={2} display="flex" justifyContent="space-between" alignItems="center" height={60}>
+					<Box>
+						<MyTextField
+							fullWidth
+							InputProps={{
+								startAdornment: (
+									<InputAdornment position="start">
+										<SearchIcon fontSize="small" />
+									</InputAdornment>
+								)
+							}}
+							placeholder={"Product name"}
+							onChange={handleSearch}
+							value={search}
+							size="small"
+						/>
 					</Box>
-				)}
+				</Box>
+				<Box sx={{ position: "relative" }}>
+					<Box>
+						<Table>
+							<TableHead>
+								<TableRow>
+									<TableCell width={800}>{"Name"}</TableCell>
+									<TableCell width={500}>{"Price"}</TableCell>
+									<TableCell>{"Image"}</TableCell>
+								</TableRow>
+							</TableHead>
+						</Table>
+					</Box>
+					<Box sx={{ height: `${tbProductHeight}px`, overflowX: "hidden" }} ref={screenView}>
+						<TableContainer>
+							<Table>
+								<TableBody>
+									<DataTableLoading isLoading={isLoading} data={dataTableLoaded()} numColumn={3} />
+								</TableBody>
+							</Table>
+						</TableContainer>
+					</Box>
+					{isShowProgress && (
+						<Box
+							sx={{
+								position: "absolute",
+								bottom: 0,
+								left: 0,
+								width: "100%",
+								height: 40,
+								display: "flex",
+								justifyContent: "center"
+							}}
+						>
+							<CircularProgress />
+						</Box>
+					)}
+				</Box>
 			</Box>
-		</Card>
+		</Box>
 	);
 };
 
