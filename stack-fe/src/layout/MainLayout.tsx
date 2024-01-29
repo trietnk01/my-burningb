@@ -7,7 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
-import { END_POINT, FIREBASE_CONFIG, socket } from "configs";
+import { END_POINT, FIREBASE_CONFIG } from "configs";
 import { initializeApp } from "firebase/app";
 import { getDatabase, onValue, ref, update, get, child } from "firebase/database";
 import useAuth from "hooks/useAuth";
@@ -116,14 +116,6 @@ const MainLayout = () => {
 			<MenuItem onClick={handleLogout}>{t("Logout")}</MenuItem>
 		</Menu>
 	);
-	React.useEffect(() => {
-		socket.on("connect", () => {});
-		socket.on("disconnect", () => {});
-		return () => {
-			socket.off("connect", () => {});
-			socket.off("disconnect", () => {});
-		};
-	}, []);
 	return (
 		<Box display="flex">
 			<CssBaseline />
