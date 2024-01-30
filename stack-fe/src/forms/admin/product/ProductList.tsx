@@ -1,43 +1,42 @@
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
 import SearchIcon from "@mui/icons-material/Search";
-import {
-	Avatar,
-	Box,
-	Button,
-	Card,
-	Checkbox,
-	IconButton,
-	InputAdornment,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
-	useTheme
-} from "@mui/material";
+import { Avatar, Box, InputAdornment, useTheme } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
+import { styled } from "@mui/styles";
 import { MyTextField } from "control";
+import { debounce } from "lodash";
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "store";
-import axios from "utils/axios";
 import { openSnackbar } from "store/slices/snackbar";
-import { DataTableLoading } from "components";
-import NoAvatar from "assets/images/no-avatar.jpg";
-import Swal from "sweetalert2";
-import { END_POINT } from "configs";
-import { debounce } from "lodash";
-import { useQuery } from "@apollo/client";
-import CircularProgress from "@mui/material/CircularProgress";
+import axios from "utils/axios";
 interface IProduct {
 	id: number;
 	title: string;
 	price: number;
 	thumbnail: string;
 }
+const MyTheadCell = styled(Box)(({ theme }) => ({
+	borderLeft: "1px solid #f1f1f1",
+	borderBottom: "1px solid #f1f1f1",
+	paddingTop: "20px",
+	paddingBottom: "20px",
+	paddingLeft: "20px",
+	paddingRight: "20px",
+	fontWeight: "bold",
+	background: "#03a9f4",
+	fontFamily: "Roboto"
+}));
+const MyTbodyCell = styled(Box)(({ theme }) => ({
+	borderLeft: "1px solid #f1f1f1",
+	borderBottom: "1px solid #f1f1f1",
+	paddingTop: "20px",
+	paddingBottom: "20px",
+	paddingLeft: "20px",
+	paddingRight: "20px",
+	fontFamily: "Roboto",
+	display: "flex",
+	alignItems: "center"
+}));
 const ProductList = () => {
 	const navigate = useNavigate();
 	const theme = useTheme();
@@ -53,7 +52,7 @@ const ProductList = () => {
 	const [totalItem, setTotalItem] = React.useState<number>(0);
 	const [isShowProgress, setIsShowProgress] = React.useState<boolean>(false);
 	const tbProductHeight: number = 900;
-	const rowHeight: number = 73;
+	const rowHeight: number = 81;
 	const getList = async (limit: number, keyword: string) => {
 		try {
 			let url = "";
@@ -105,7 +104,7 @@ const ProductList = () => {
 						behavior: "smooth"
 					});
 				}
-			}, 3000);
+			}, 1000);
 		}
 		return () => {
 			mounted = false;
@@ -123,7 +122,6 @@ const ProductList = () => {
 			});
 			screenView.current.onscroll = () => {
 				scrollTop = screenView.current ? parseInt(screenView.current.scrollTop.toString()) : 0;
-				console.log("limit = ", limit);
 				if (scrollTop + screenHeight === windowHeight && limit < totalItem) {
 					setLimit((prevLimit) => prevLimit + 20);
 					setIsShowProgress(true);
@@ -159,32 +157,9 @@ const ProductList = () => {
 			debouncedSearch.cancel();
 		};
 	}, [debouncedSearch]);
-	const dataTableLoaded = () => {
-		return (
-			<React.Fragment>
-				{rows && rows.length > 0 ? (
-					<React.Fragment>
-						{rows.map((elmt: IProduct, idx: number) => {
-							return (
-								<TableRow hover key={`product-idx-${idx}`}>
-									<TableCell width={800}>{elmt.title}</TableCell>
-									<TableCell width={500}>{elmt.price}</TableCell>
-									<TableCell>
-										<Avatar src={elmt.thumbnail} />
-									</TableCell>
-								</TableRow>
-							);
-						})}
-					</React.Fragment>
-				) : (
-					<React.Fragment></React.Fragment>
-				)}
-			</React.Fragment>
-		);
-	};
 	return (
 		<Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%" }}>
-			<Box sx={{ width: "900px" }}>
+			<Box sx={{ width: "1280px" }}>
 				<Box
 					display="flex"
 					alignItems="center"
@@ -218,25 +193,73 @@ const ProductList = () => {
 					</Box>
 				</Box>
 				<Box sx={{ position: "relative" }}>
-					<Box>
-						<Table>
-							<TableHead>
-								<TableRow>
-									<TableCell width={800}>{"Name"}</TableCell>
-									<TableCell width={500}>{"Price"}</TableCell>
-									<TableCell>{"Image"}</TableCell>
-								</TableRow>
-							</TableHead>
-						</Table>
+					<Box sx={{ borderRight: "1px solid #f1f1f1", borderTop: "1px solid #f1f1f1", display: "flex", width: "100%" }}>
+						<MyTheadCell sx={{ width: "400px" }}>Name</MyTheadCell>
+						<MyTheadCell sx={{ width: "400px" }}>Price</MyTheadCell>
+						<MyTheadCell sx={{ flexGrow: 1 }}>Image</MyTheadCell>
 					</Box>
-					<Box sx={{ height: `${tbProductHeight}px`, overflowX: "hidden" }} ref={screenView}>
-						<TableContainer>
-							<Table>
-								<TableBody>
-									<DataTableLoading isLoading={isLoading} data={dataTableLoaded()} numColumn={3} />
-								</TableBody>
-							</Table>
-						</TableContainer>
+					<Box
+						sx={{
+							height: `${tbProductHeight}px`,
+							overflowX: "hidden",
+							borderBottom: "1px solid #f1f1f1",
+							"::-webkit-scrollbar": {
+								width: "8px",
+								height: "8px",
+								transition: "all .5s ease"
+							},
+							"::-webkit-scrollbar:hover": {
+								width: "8px",
+								height: "8px"
+							},
+							"::-webkit-scrollbar-track": {
+								backgroundColor: "transparent",
+								borderRadius: "8px"
+							},
+							"::-webkit-scrollbar-thumb": {
+								background: "#03a9f4",
+								transition: "all .5s ease",
+								borderRadius: "8px",
+								opacity: ".5"
+							},
+							"::-webkit-scrollbar-thumb:hover": {
+								background: "#03a9f4",
+								opacity: ".9"
+							}
+						}}
+						ref={screenView}
+					>
+						{rows && rows.length > 0 ? (
+							<React.Fragment>
+								{rows.map((elmt: IProduct, idx: number) => {
+									return (
+										<Box key={`product-idx-${idx}`} sx={{ display: "flex", width: "100%" }}>
+											<MyTbodyCell sx={{ borderLeft: "1px solid #f1f1f1", width: "400px" }}>{elmt.title}</MyTbodyCell>
+											<MyTbodyCell sx={{ borderLeft: "1px solid #f1f1f1", width: "400px" }}>
+												{new Intl.NumberFormat("en-US", {
+													style: "currency",
+													currency: "USD",
+													maximumFractionDigits: 0
+												}).format(elmt.price)}
+											</MyTbodyCell>
+											<MyTbodyCell
+												sx={{
+													borderLeft: "1px solid #f1f1f1",
+													flexGrow: 1,
+													display: "flex",
+													justifyContent: "center",
+													alignItems: "center"
+												}}
+											>
+												<Avatar src={elmt.thumbnail} />
+											</MyTbodyCell>
+										</Box>
+									);
+								})}
+							</React.Fragment>
+						) : (
+							<React.Fragment></React.Fragment>
+						)}
 					</Box>
 					{isShowProgress && (
 						<Box
