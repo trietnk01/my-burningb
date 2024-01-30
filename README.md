@@ -1,4 +1,4 @@
-# 1. Clone code from https://github.com/trietnk01/my-burningb
+# 1. Clone code from https://github.com/trietnk01/my-burningb from master branch
 
 # 2. Press code . to open Vscode
 
