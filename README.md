@@ -4,4 +4,6 @@
 
 # 3. cd stack-fe
 
-# 4. Press npm run dev and join
+# 4. npm install --legacy-peer-deps
+
+# 5. Press npm run dev and join
