@@ -1,15 +1,17 @@
 import { lazy } from "react";
 
 // project imports
+import GuestGuard from "utils/route-guard/GuestGuard";
 
 import Loadable from "ui-component/Loadable";
-import GuestGuard from "utils/route-guard/GuestGuard";
+
+// login routing
+const AuthLogin = Loadable(lazy(() => import("forms/admin/Login")));
 const LoginLayout = Loadable(lazy(() => import("layout/LoginLayout")));
 const PublicDenied = Loadable(lazy(() => import("forms/public/PublicDenied")));
-const HomePage = Loadable(lazy(() => import("forms/public/HomePage")));
 // ==============================|| AUTH ROUTING ||============================== //
 
-const PublicRoutes = {
+const LoginRoutes = {
 	path: "/",
 	element: (
 		<GuestGuard>
@@ -22,9 +24,9 @@ const PublicRoutes = {
 			element: <PublicDenied />
 		},
 		{
-			path: "/",
-			element: <HomePage />
+			path: "admin/login",
+			element: <AuthLogin />
 		}
 	]
 };
-export default PublicRoutes;
+export default LoginRoutes;
