@@ -15,19 +15,13 @@ class IUser {
   password: string;
 
   @Field((type) => String)
-  phone: string;
-
-  @Field((type) => Number)
-  age: number;
+  displayName: string;
 
   @Field((type) => String)
-  address: string;
+  phone: string;
 
   @Field((type) => String)
   token: string;
-
-  @Field((type) => String)
-  displayName: string;
 }
 @ObjectType()
 export class UserType {
@@ -37,6 +31,6 @@ export class UserType {
   @Field((type) => String)
   message: string;
 
-  @Field((type) => IUser)
+  @Field((type) => IUser, { nullable: true })
   data: IUser;
 }

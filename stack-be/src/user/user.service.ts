@@ -2,9 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { InjectModel } from "@nestjs/mongoose";
-import { compareSync } from "bcryptjs";
 import { Model } from "mongoose";
+import { v4 as uuid } from "uuid";
+import { compareSync, genSaltSync, hashSync } from "bcryptjs";
 import { User } from "./user.schema";
+import { UserCreateInput } from "./user.input";
 
 @Injectable()
 export class UserService {
@@ -13,11 +15,27 @@ export class UserService {
     private jwt: JwtService,
     private confService: ConfigService
   ) {}
+  create = async (userCreateInput: UserCreateInput) => {
+    let status = false;
+    let message = "";
+    let data = null;
+    const item = new this.userModel(userCreateInput);
+    item._id = uuid();
+    const salt = genSaltSync(10);
+    const hashPassword = hashSync(userCreateInput.password, salt);
+    item.password = hashPassword;
+    data = await item.save();
+    return {
+      status,
+      message,
+      data
+    };
+  };
   login = async (username: string, password: string) => {
     let status = false;
     let message = "";
     let data = null;
-    let userItem: any = await this.userModel.findOne({ username });
+    let userItem = await this.userModel.findOne({ username });
     if (userItem) {
       let token = "";
       const checkIsvalidPassword = compareSync(password, userItem.password);
@@ -37,14 +55,14 @@ export class UserService {
         });
         await this.userModel.updateOne({ _id: userItem.id }, { token });
         status = true;
+        data = {
+          _id: userItem._id,
+          username: userItem.username,
+          email: userItem.email,
+          displayName: userItem.displayName,
+          token
+        };
       }
-      data = {
-        _id: userItem._id,
-        username: userItem.username,
-        email: userItem.email,
-        displayName: userItem.displayName,
-        token
-      };
     }
     return {
       status,
