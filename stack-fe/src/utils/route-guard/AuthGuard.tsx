@@ -1,28 +1,23 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 
 // project imports
 import useAuth from "hooks/useAuth";
 
+import React, { ReactElement, useEffect } from "react";
+
 // ==============================|| AUTH GUARD ||============================== //
 
-/**
- * Authentication guard for routes
- * @param {PropTypes.node} children children element/node
- */
-interface GuardProps {
-	children: React.ReactElement | null;
-}
-const AuthGuard: React.FC<GuardProps> = ({ children }) => {
+interface GuardProps {}
+const AuthGuard: React.FC<React.PropsWithChildren<GuardProps>> = ({ children }) => {
 	const { isLoggedIn, user } = useAuth();
 	const navigate = useNavigate();
-	React.useEffect(() => {
+	useEffect(() => {
 		if (!isLoggedIn) {
-			navigate("/admin/login", { replace: true });
+			navigate("/", { replace: true });
 		}
 	}, [isLoggedIn, navigate, user]);
 
-	return children;
+	return <React.Fragment>{children}</React.Fragment>;
 };
 
 export default AuthGuard;

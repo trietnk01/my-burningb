@@ -1,29 +1,21 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 
 // project imports
 import useAuth from "hooks/useAuth";
+import React, { ReactElement, useEffect } from "react";
 
-// ==============================|| GUEST GUARD ||============================== //
-
-/**
- * Guest guard for routes having no auth required
- * @param {PropTypes.node} children children element/node
- */
-interface GuardProps {
-	children: React.ReactElement | null;
-}
-const GuestGuard: React.FC<GuardProps> = ({ children }) => {
+interface GuardProps {}
+const GuestGuard: React.FC<React.PropsWithChildren<GuardProps>> = ({ children }) => {
 	const { isLoggedIn } = useAuth();
 	const navigate = useNavigate();
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (isLoggedIn) {
 			navigate("/admin/dashboard", { replace: true });
 		}
 	}, [isLoggedIn, navigate]);
 
-	return children;
+	return <React.Fragment>{children}</React.Fragment>;
 };
 
 export default GuestGuard;

@@ -2,17 +2,14 @@
  * axios setup to use mock service
  */
 
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import axios from "axios";
 import { END_POINT } from "configs";
 import { dispatch } from "store";
-import { hideLoading, showLoading } from "store/slices/loading";
-
+import { hideLoading, showLoading } from "store/slices/loadingSlice";
 import auth_service from "./authService";
 
-import { DefaultRootStateProps } from "types";
-
-const item_axios: DefaultRootStateProps["axios"] = {
-	baseURL: process.env.REACT_APP_PRODUCT_URL ? process.env.REACT_APP_PRODUCT_URL : "",
+const item_axios = {
+	baseURL: END_POINT.API_ENDPOINT as string,
 	timeout: 100000
 };
 const axiosServices = axios.create(item_axios);
@@ -26,16 +23,14 @@ function decreaseRequestCount(): void {
 }
 // interceptor for http
 axiosServices.interceptors.request.use(
-	(config: AxiosRequestConfig<any>) => {
+	(config: any) => {
 		const accessToken: string = auth_service.getAccessToken();
-		if (config.headers) {
-			if (accessToken) {
-				config.headers.Authorization = `Bearer ${accessToken}`;
-			}
-			if (config.headers.isShowLoading) {
-				requestCount++;
-				dispatch(showLoading());
-			}
+		if (accessToken) {
+			config.headers.Authorization = `Bearer ${accessToken}`;
+		}
+		if (config.headers.isShowLoading) {
+			requestCount++;
+			dispatch(showLoading());
 		}
 		return config;
 	},
@@ -47,8 +42,8 @@ axiosServices.interceptors.request.use(
 	}
 );
 axiosServices.interceptors.response.use(
-	(res: AxiosResponse<any>) => {
-		if (res.config && res.config.headers && res.config.headers.isShowLoading) {
+	(res: any) => {
+		if (res.config.headers.isShowLoading) {
 			decreaseRequestCount();
 		}
 		return res;

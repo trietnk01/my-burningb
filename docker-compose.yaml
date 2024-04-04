@@ -1,0 +1,92 @@
+version: "3.9"
+services:
+  mongo:
+    container_name: mongo_gosource
+    image: mongo:6.0
+    environment:
+      - MONGO_INITDB_DATABASE=my_gosource
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=gosource246357
+    ports:
+      - 4200:27017
+    networks:
+      - bridge
+    volumes:
+      - mongo_volume:/data/db
+    restart: unless-stopped
+  redis:
+    image: redis:latest
+    container_name: redis_gosource
+    restart: always
+    volumes:
+      - rediscache_volume:/data
+    ports:
+      - 7541:6379
+    command: redis-server --save 20 1 --loglevel warning --requirepass Redis@246357
+    networks:
+      - bridge
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
+    container_name: elasticsearch_gosource
+    restart: always
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - elastic_search_volume:/usr/share/elasticsearch/data
+    ports:
+      - 9661:9200
+    networks:
+      - bridge
+  kibana:
+    container_name: kibana_gosource
+    image: docker.elastic.co/kibana/kibana:7.4.0
+    restart: always
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9661 # address of elasticsearch docker container which kibana will connect
+    ports:
+      - 5331:5601
+    depends_on:
+      - elasticsearch
+    networks:
+      - bridge
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper_gosource
+    ports:
+      - 9051:2181
+    networks:
+      - bridge
+  kafka:
+    image: bitnami/kafka:2.8.0
+    container_name: kafka_gosource
+    ports:
+      - 8441:9093
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:9051
+    networks:
+      - bridge
+volumes:
+  mongo_volume:
+  rediscache_volume:
+  elastic_search_volume:
+networks:
+  bridge:
+    driver: bridge
+# docker compose -p my-gosource up -d
+# docker volume ls
+# docker volume rm my-gosource_rediscache_volume
+# jenkins username : root - password : Jenkins@246357 - https://872d-1-53-19-150.ngrok-free.app
+# redis password : Redis@246357
+# docker run -u 0 -d --name my-jenkins -p 8080:8080 -p 50000:50000 -v /home/diennk/my-jenkins:/var/jenkins_home jenkins/jenkins:lts
+# docker run -d --restart=always -p 127.0.0.1:2376:2375 --network jenkins -v /var/run/docker.sock:/var/run/docker.sock alpine/socat tcp-listen:2375,fork,reuseaddr unix-connect:/var/run/docker.sock

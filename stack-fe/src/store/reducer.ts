@@ -1,14 +1,12 @@
 // third-party
 import { combineReducers } from "redux";
-import loadingReducer from "./slices/loading";
-import snackbarReducer from "./slices/snackbar";
-import drawerReducer from "./slices/drawer";
+import loadingSlice from "./slices/loadingSlice";
+import accountSlice from "./slices/accountSlice";
+
+// project imports
+
 // ==============================|| COMBINE REDUCER ||============================== //
 
-const reducer = combineReducers({
-	loading: loadingReducer,
-	snackbar: snackbarReducer,
-	drawer: drawerReducer
-});
+const reducer = combineReducers({ loading: loadingSlice, account: accountSlice });
 
 export default reducer;

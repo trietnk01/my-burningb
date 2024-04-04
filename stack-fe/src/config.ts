@@ -1,5 +1,8 @@
-// types
-import { ConfigProps } from "types/config";
+interface IConfig {
+	locale: string;
+	currency: string;
+	dateFormat: string;
+}
 export const FIREBASE_API = {
 	apiKey: "AIzaSyBernKzdSojh_vWXBHt0aRhf5SC9VLChbM",
 	authDomain: "berry-material-react.firebaseapp.com",
@@ -10,7 +13,7 @@ export const FIREBASE_API = {
 	measurementId: "G-MGJHSL8XW3"
 };
 
-const config: ConfigProps = {
+const config: IConfig = {
 	locale: "en", // 'en' - English, 'fr' - French, 'ro' - Romanian, 'zh' - Chinese
 	currency: "USD",
 	dateFormat: "MM/dd/yyyy"

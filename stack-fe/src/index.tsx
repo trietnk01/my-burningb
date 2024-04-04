@@ -1,29 +1,23 @@
 import ReactDOM from "react-dom";
 // third party
-import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
-
+import { Provider } from "react-redux";
 // load mock apis
 
 // project imports
 import App from "App";
-import { ConfigProvider } from "contexts/ConfigContext";
 import reportWebVitals from "reportWebVitals";
 import * as serviceWorker from "serviceWorker";
-import { store } from "store";
 
-// style + assets
-import "assets/scss/style.scss";
 import "./utils/i18n";
+import { store } from "store";
 // ==============================|| REACT DOM RENDER  ||============================== //
-
+import "assets/scss/style.scss";
 ReactDOM.render(
 	<Provider store={store}>
-		<ConfigProvider>
-			<BrowserRouter>
-				<App />
-			</BrowserRouter>
-		</ConfigProvider>
+		<BrowserRouter>
+			<App />
+		</BrowserRouter>
 	</Provider>,
 	document.getElementById("root")
 );
